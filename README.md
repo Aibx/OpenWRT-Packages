@@ -31,9 +31,11 @@ sed -i '$a src-git Whitestorys https://github.com/Aibx/OpenWRT-Packages' feeds.c
 ```
 ---
 # 竞斗云2.0成品固件
-- 最新版本下载地址：https://github.com/Aibx/OpenWRT-Packages-Action/releases/latest
+
+[![GitHub Action (latest by date)](https://img.shields.io/github/workflow/status/Aibx/OpenWRT-R619AC/Build%20OpenWrt?style=for-the-badge&logo=appveyor&label=Build%20Status)](https://github.com/Aibx/OpenWRT-R619AC/actions)
+[![GitHub Release (latest by date)](https://img.shields.io/github/v/release/Aibx/OpenWRT-R619AC?style=for-the-badge&label=Download)](https://github.com/Aibx/OpenWRT-R619AC/releases/latest)
 - 含仓库内大部分软件和主题，每日跟随仓库更新自动编译，如果最新版本不含bin后缀文件即编译失败，请去[Releases](https://github.com/Aibx/OpenWRT-R619AC/releases)或[Actions](https://github.com/Aibx/OpenWRT-R619AC/actions)寻找旧版下载
-- Releases仅保留最新14份编译内容,actions则保留一月内全部的编译内容,Cowtransfer及WeTransfer下载链接有效时长为7天,建议按需选取
+- Releases仅保留最新14份编译内容,Actions则保留一月内全部的编译内容,Cowtransfer及WeTransfer下载链接有效时长为7天,建议按需选取
 
 > 编译开始时间为0:30 UTC(北京时间8:30) And 12:30 UTC(北京时间20:30)
 
