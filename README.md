@@ -46,5 +46,10 @@ sed -i '$a src-git Whitestorys https://github.com/Aibx/OpenWRT-Packages' feeds.c
 
 ## 联动仓库
 - [OpenWRT-R619AC](https://github.com/Aibx/OpenWRT-R619AC)：竞斗云2.0自动编译仓库,内含IPK及最新固件
-- [Lean's OpenWrt](https://github.com/Aibx/Lean-OpenWrt)：Lean的OpenWRT源码仓库，每日自动合并上流推送
-- [Lienol's OpenWrt](https://github.com/Aibx/Lienol-OpenWrt)：Lienol的OpenWRT源码仓库，每日自动合并上流推送
+
+## 致谢
+- [Liuran001](https://github.com/liuran001)：软件仓库自动更新脚本作者，自动获取最新源码
+- [Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt)：使用GitHub Actions云编译OpenWrt
+- [Lean's OpenWrt](https://github.com/coolsnowwolf/lede)：Lean的OpenWRT源码仓库，每日自动合并上流推送
+- [Lienol's OpenWrt](https://github.com/Lienol/openwrt)：Lienol的OpenWRT源码仓库，每日自动合并上流推送
+
