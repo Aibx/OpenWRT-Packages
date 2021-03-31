@@ -1,84 +1,86 @@
-# Keep the Makefile POSIX-compliant.  We currently allow hyphens in
-# target names, but that may change in the future.
 #
-# See https://pubs.opengroup.org/onlinepubs/9699919799/utilities/make.html.
-.POSIX:
+# Copyright (C) 2015-2016 OpenWrt.org
+# This is free software, licensed under the GNU General Public License v2.
+# See /LICENSE.txt for more information.
+#
 
-CHANNEL = development
-CLIENT_BETA_DIR = client2
-CLIENT_DIR = client
-COMMIT = $$(git rev-parse --short HEAD)
-DIST_DIR = dist
-GO = go
-GOPROXY = https://goproxy.cn|https://proxy.golang.org|direct
-GPG_KEY = devteam@adguard.com
-GPG_KEY_PASSPHRASE = not-a-real-password
-NPM = npm
-NPM_FLAGS = --prefix $(CLIENT_DIR)
-SIGN = 1
-VERBOSE = 0
-VERSION = v0.0.0
-YARN = yarn
-YARN_FLAGS = --cwd $(CLIENT_BETA_DIR) --network-timeout 120000
+include $(TOPDIR)/rules.mk
 
-ENV = env\
-	COMMIT='$(COMMIT)'\
-	CHANNEL='$(CHANNEL)'\
-	GPG_KEY='$(GPG_KEY)'\
-	GPG_KEY_PASSPHRASE='$(GPG_KEY_PASSPHRASE)'\
-	DIST_DIR='$(DIST_DIR)'\
-	GO='$(GO)'\
-	GOPROXY='$(GOPROXY)'\
-	PATH="$${PWD}/bin:$$($(GO) env GOPATH)/bin:$${PATH}"\
-	SIGN='$(SIGN)'\
-	VERBOSE='$(VERBOSE)'\
-	VERSION='$(VERSION)'\
+PKG_NAME:=AdGuardHome
+PKG_VERSION:=0.105.2
+PKG_RELEASE:=1
 
-# Keep the line above blank.
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_VERSION:=v$(PKG_VERSION)
+PKG_SOURCE_URL:=https://github.com/AdguardTeam/AdGuardHome
+PKG_MIRROR_HASH:=a85af0f251cb8473f032c400643bef920e4cb1756d08dfe3e06c4911e13bab24
 
-# Keep this target first, so that a naked make invocation triggers
-# a full build.
-build: deps quick-build
+PKG_LICENSE:=GPL-3.0-only
+PKG_LICENSE_FILES:=LICENSE.txt
+PKG_MAINTAINER:=Dobroslaw Kijowski <dobo90@gmail.com>
 
-quick-build: js-build go-build
+PKG_BUILD_DEPENDS:=golang/host node/host
+PKG_BUILD_PARALLEL:=1
+PKG_USE_MIPS16:=0
 
-ci: deps test
+PKG_CONFIG_DEPENDS:= \
+	CONFIG_ADGUARDHOME_COMPRESS_GOPROXY \
+	CONFIG_ADGUARDHOME_COMPRESS_UPX
 
-deps: js-deps go-deps
-lint: js-lint go-lint
-test: js-test go-test
+GO_PKG:=github.com/AdguardTeam/AdGuardHome
+GO_PKG_EXCLUDES:=dhcpd/standalone
+GO_PKG_LDFLAGS:=-s -w
+GO_PKG_LDFLAGS_X:=main.version=$(PKG_VERSION) main.channel=release
 
-# Here and below, keep $(SHELL) in quotes, because on Windows this will
-# expand to something like "C:/Program Files/Git/usr/bin/sh.exe".
-build-docker: ; $(ENV) "$(SHELL)" ./scripts/make/build-docker.sh
+include $(INCLUDE_DIR)/package.mk
+include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk
 
-build-release: deps js-build
-	$(ENV) "$(SHELL)" ./scripts/make/build-release.sh
+define Package/AdGuardHome
+  SECTION:=net
+  CATEGORY:=Network
+  TITLE:=Network-wide ads and trackers blocking DNS server
+  URL:=https://github.com/AdguardTeam/AdGuardHome
+  DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle
+endef
 
-clean: ; $(ENV) "$(SHELL)" ./scripts/make/clean.sh
-init:  ; git config core.hooksPath ./scripts/hooks
+define Package/AdGuardHome/description
+Free and open source, powerful network-wide ads and trackers blocking DNS server.
+endef
 
-js-build:
-	$(NPM) $(NPM_FLAGS) run build-prod
-	$(YARN) $(YARN_FLAGS) build
-js-deps:
-	$(NPM) $(NPM_FLAGS) ci
-	$(YARN) $(YARN_FLAGS) install
+define Package/$(PKG_NAME)/config
+config ADGUARDHOME_COMPRESS_GOPROXY
+	bool "Compiling with GOPROXY proxy"
+	default n
 
-# TODO(a.garipov): Remove the legacy client tasks support once the new
-# client is done and the old one is removed.
-js-lint: ; $(NPM) $(NPM_FLAGS) run lint
-js-test: ; $(NPM) $(NPM_FLAGS) run test
-js-beta-lint: ; $(YARN) $(YARN_FLAGS) lint
-js-beta-test: ; # TODO(v.abdulmyanov): Add tests for the new client.
+config ADGUARDHOME_COMPRESS_UPX
+	bool "Compress executable files with UPX"
+	default n
+endef
 
-go-build: ; $(ENV) "$(SHELL)" ./scripts/make/go-build.sh
-go-deps:  ; $(ENV) "$(SHELL)" ./scripts/make/go-deps.sh
-go-lint:  ; $(ENV) "$(SHELL)" ./scripts/make/go-lint.sh
-go-test:  ; $(ENV) "$(SHELL)" ./scripts/make/go-test.sh
-go-tools: ; $(ENV) "$(SHELL)" ./scripts/make/go-tools.sh
+ifeq ($(CONFIG_ADGUARDHOME_COMPRESS_GOPROXY),y)
+export GO111MODULE=on
+export GOPROXY=https://goproxy.io
+endif
 
-go-check: go-tools go-lint go-test
+define Build/Compile
+( \
+  cd $(PKG_BUILD_DIR) ; \
+  npm --prefix client ci ; \
+  npm --prefix client run build-prod ; \
+  GOOS=$$$$(go env GOOS) GOARCH=$$$$(go env GOARCH) GO111MODULE=off go get -v github.com/gobuffalo/packr/... ; \
+  "$$$$(go env GOPATH)/bin/packr" -v -z -i $(PKG_BUILD_DIR)/home ; \
+  $(call GoPackage/Build/Compile) ; \
+)
+ifeq ($(CONFIG_ADGUARDHOME_COMPRESS_UPX),y)
+	$(STAGING_DIR_HOST)/bin/upx --lzma --best $(GO_PKG_BUILD_BIN_DIR)/AdGuardHome
+endif
+endef
 
-openapi-lint: ; cd ./openapi/ && $(YARN) test
-openapi-show: ; cd ./openapi/ && $(YARN) start
+define Package/AdGuardHome/install
+	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
+	$(INSTALL_DIR) $(1)/usr/bin/AdGuardHome
+	$(INSTALL_BIN) $(GO_PKG_BUILD_BIN_DIR)/AdGuardHome $(1)/usr/bin/AdGuardHome/AdGuardHome
+endef
+
+$(eval $(call GoBinPackage,AdGuardHome))
+$(eval $(call BuildPackage,AdGuardHome))

@@ -1,3 +1,0 @@
-# Ignore everything except for explicitly allowed stuff.
-*
-!dist/docker
