@@ -33,7 +33,7 @@ GO_PKG_BUILD_PKG:=github.com/ginuerzh/gost/cmd/gost
 GO_PKG_LDFLAGS:=-s -w
 
 include $(INCLUDE_DIR)/package.mk
-include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk
+include ../../lang/golang/golang-package.mk
 
 define Package/gost
 	SECTION:=net
@@ -59,7 +59,7 @@ endef
 
 ifeq ($(CONFIG_GOST_COMPRESS_GOPROXY),y)
 	export GO111MODULE=on
-	export GOPROXY=https://goproxy.io
+	export GOPROXY=https://goproxy.baidu.com
 endif
 
 define Build/Compile
