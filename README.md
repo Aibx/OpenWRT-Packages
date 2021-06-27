@@ -21,7 +21,7 @@
 ```
 2. 添加以下代码到feeds.conf.default文件
 ```bash
- src-git Whitestorys https://github.com/Aibx/OpenWRT-Packages
+ src-git Aibx https://github.com/Aibx/OpenWRT-Packages
 ```
 3. 先cd进package目录，然后执行
 ```bash
