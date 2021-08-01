@@ -31,7 +31,7 @@
 ### 云编译教程
 - 打开diy-part1.sh文件，在最后一行加入如下代码
 ```bash
-sed -i '$a src-git Aibx https://github.com/Aibx/OpenWRT-Packages' feeds.conf.default
+sed -i '$a src-git Whitestorys https://github.com/Aibx/OpenWRT-Packages' feeds.conf.default
 ```
 ---
 # 竞斗云2.0成品固件
