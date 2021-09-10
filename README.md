@@ -47,6 +47,8 @@ sed -i '$a src-git Aibx https://github.com/Aibx/OpenWRT-Packages' feeds.conf.def
 ## 联动仓库
 - [OpenWRT-R619AC](https://github.com/Aibx/OpenWRT-R619AC)：竞斗云2.0自动编译仓库,内含IPK及最新固件
 
+- [OpenWRT-S905D](https://github.com/Aibx/OpenWRT-S905D)：斐讯N1自动编译仓库
+
 ## 致谢
 - [Liuran001](https://github.com/liuran001)：OpenWRT常用软件自动更新脚本作者
 - [Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt)：GitHub Actions云编译OpenWrt脚本
