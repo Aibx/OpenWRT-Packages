@@ -3,6 +3,7 @@
 --Extended support: https://github.com/ophub/luci-app-amlogic
 --Function: Support multi-core
 
+local uci = require("luci.model.uci").cursor()
 local e = require"nixio.fs"
 local mp
 
@@ -26,9 +27,9 @@ function string.split(e, t)
     return o
 end
 
-mp = Map("cpufreq",translate("CPU Freq Settings"))
+mp = Map("amlogic",translate("CPU Freq Settings"))
 mp.description = translate("Set CPU Scaling Governor to Max Performance or Balance Mode")
-s = mp:section(NamedSection,"cpufreq","settings")
+s = mp:section(NamedSection,"armcpu","settings")
 s.anonymouse = true
 
 local cpu_policys = luci.sys.exec("ls /sys/devices/system/cpu/cpufreq | grep -E 'policy[0-9]{1,3}' | xargs") or "policy0"
@@ -39,6 +40,7 @@ for tt,policy_name in ipairs(policy_array) do
     --Dynamic tab, automatically changes according to the number of cores, begin ------
     policy_name = tostring(trim(policy_name))
     policy_id = tostring(trim(string.gsub(policy_name, "policy", "")))
+    display_id = policy_id
     if (policy_name == "policy0") then policy_id = "" end
 
     tab_name = policy_name
@@ -52,29 +54,34 @@ for tt,policy_name in ipairs(policy_array) do
     governor_array = string.split(cpu_governors, " ")
 
     s:tab(tab_id, tab_name)
-    governor = s:taboption(tab_id, ListValue, trim("governor" .. policy_id), translate("CPU Scaling Governor"))
+
+    tab_core_type = s:taboption(tab_id, DummyValue, trim("core_type" .. policy_id), translate("Microarchitectures:"))
+    tab_core_type.default = luci.sys.exec("cat /sys/devices/system/cpu/cpu" .. display_id .. "/uevent | grep -E '^OF_COMPATIBLE_0.*' | tr -d 'OF_COMPATIBLE_0=' | xargs") or "Unknown"
+    tab_core_type.rmempty = false
+
+    governor = s:taboption(tab_id, ListValue, trim("governor" .. policy_id), translate("CPU Scaling Governor:"))
     for t,e in ipairs(governor_array) do
         if e ~= "" then governor:value(e,translate(e,string.upper(e))) end
     end
 
-    minfreq = s:taboption(tab_id, ListValue, trim("minifreq" .. policy_id), translate("Min Idle CPU Freq"))
+    minfreq = s:taboption(tab_id, ListValue, trim("minifreq" .. policy_id), translate("Min Idle CPU Freq:"))
     for t,e in ipairs(freq_array) do
         if e ~= "" then minfreq:value(e) end
     end
 
-    maxfreq = s:taboption(tab_id, ListValue, trim("maxfreq" .. policy_id), translate("Max Turbo Boost CPU Freq"))
+    maxfreq = s:taboption(tab_id, ListValue, trim("maxfreq" .. policy_id), translate("Max Turbo Boost CPU Freq:"))
     for t,e in ipairs(freq_array) do
         if e ~= "" then maxfreq:value(e) end
     end
 
-    upthreshold = s:taboption(tab_id, Value, trim("upthreshold" .. policy_id), translate("CPU Switching Threshold"))
+    upthreshold = s:taboption(tab_id, Value, trim("upthreshold" .. policy_id), translate("CPU Switching Threshold:"))
     upthreshold.datatype = "range(1,99)"
     upthreshold.rmempty = false
     upthreshold.description = translate("Kernel make a decision on whether it should increase the frequency (%)")
     upthreshold.placeholder = 50
     upthreshold.default = 50
 
-    factor = s:taboption(tab_id, Value, trim("factor" .. policy_id), translate("CPU Switching Sampling rate"))
+    factor = s:taboption(tab_id, Value, trim("factor" .. policy_id), translate("CPU Switching Sampling rate:"))
     factor.datatype = "range(1,100000)"
     factor.rmempty = false
     factor.description = translate("The sampling rate determines how frequently the governor checks to tune the CPU (ms)")

@@ -10,7 +10,7 @@ function index()
     entry({"admin", "system", "amlogic", "check"},cbi("amlogic/amlogic_check"),_("Online Download Update"), 4).leaf = true
     entry({"admin", "system", "amlogic", "backup"},cbi("amlogic/amlogic_backup"),_("Backup Firmware Config"), 5).leaf = true
     entry({"admin", "system", "amlogic", "config"},cbi("amlogic/amlogic_config"),_("Plugin Settings"), 6).leaf = true
-    entry({"admin", "system", "amlogic", "cpufreq"},cbi("amlogic/amlogic_cpufreq"),_("CPU Settings"), 7).leaf = true
+    entry({"admin", "system", "amlogic", "armcpu"},cbi("amlogic/amlogic_armcpu"),_("CPU Settings"), 7).leaf = true
     entry({"admin", "system", "amlogic", "log"},cbi("amlogic/amlogic_log"),_("Server Logs"), 8).leaf = true
     entry({"admin", "system", "amlogic", "check_firmware"},call("action_check_firmware"))
     entry({"admin", "system", "amlogic", "check_plugin"},call("action_check_plugin"))
@@ -146,9 +146,9 @@ end
 
 --Upgrade luci-app-amlogic plugin
 function start_amlogic_plugin()
-    local ipk_state = luci.sys.call("[ -f /etc/config/amlogic ] && cp -vf /etc/config/amlogic /etc/config/amlogic_bak > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
+    --local ipk_state = luci.sys.call("[ -f /etc/config/amlogic ] && cp -vf /etc/config/amlogic /etc/config/amlogic_bak > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
     local ipk_state = luci.sys.call("opkg --force-reinstall install /tmp/amlogic/*.ipk > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
-    local ipk_state = luci.sys.call("[ -f /etc/config/amlogic_bak ] && cp -vf /etc/config/amlogic_bak /etc/config/amlogic > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
+    --local ipk_state = luci.sys.call("[ -f /etc/config/amlogic_bak ] && cp -vf /etc/config/amlogic_bak /etc/config/amlogic > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
     local ipk_state = luci.sys.call("rm -rf /tmp/luci-indexcache /tmp/luci-modulecache/* /etc/config/amlogic_bak >/dev/null 2>&1")
     local state = luci.sys.call("echo 'Successful Update' > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
     return state
