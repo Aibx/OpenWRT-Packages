@@ -1011,6 +1011,7 @@ start(){
 }
 
 stop(){
+	[[ $(uci_get_by_type global global_server 0) = 0 && $(uci_get_by_type server_global enable_server 0) = 0 ]] && exit 1
 	kill -9 $(ps -w | grep by-rules | grep -v grep | awk '{print$1}') 2>/dev/null
 	kill -9 $(ps -w | grep gfw.b64 | grep -v grep | awk '{print$1}') 2>/dev/null
 	kill -9 $(ps -w | grep $BIN_DIR/checknetwork | grep -v grep | awk '{print$1}') 2>/dev/null
@@ -1088,9 +1089,7 @@ stop(){
 }
 
 restart(){
-	[[ $(uci_get_by_type global global_server 0) = 0 && $(uci_get_by_type server_global enable_server 0) = 0 ]] && exit 1
 	[ -f $LOC ] && exit 1
-	touch $LOC
 	STATUS=N
 	stop
 	start
