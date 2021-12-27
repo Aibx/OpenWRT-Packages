@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=v2ray-core
 PKG_VERSION:=4.44.0
-PKG_RELEASE:=1
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/v2fly/v2ray-core/tar.gz/v$(PKG_VERSION)?
@@ -53,6 +53,13 @@ define Package/v2ray-ctl
   DEPENDS:=v2ray-core
 endef
 
+define Package/v2ray-example
+  $(call Package/v2ray/template)
+  TITLE+= (example configs)
+  DEPENDS:=v2ray-core
+  PKGARCH:=all
+endef
+
 define Package/v2ray-extra
   $(call Package/v2ray/template)
   TITLE+= (extra resources)
@@ -75,6 +82,12 @@ define Package/v2ray-ctl/description
   This includes configuration tool for v2ray-core.
 endef
 
+define Package/v2ray-example/description
+  $(call Package/v2ray/description)
+
+  This includes example configuration files for v2ray-core.
+endef
+
 define Package/v2ray-extra/description
   $(call Package/v2ray/description)
 
@@ -91,6 +104,7 @@ config V2RAY_CORE_COMPRESS_GOPROXY
 
 config V2RAY_CORE_COMPRESS_UPX
 	bool "Compress executable files with UPX"
+	depends on !mips64
 	default y
 endmenu
 endef
@@ -105,9 +119,20 @@ config V2RAY_CTL_COMPRESS_GOPROXY
 
 config V2RAY_CTL_COMPRESS_UPX
 	bool "Compress executable files with UPX"
+	depends on !mips64
 	default y
 endmenu
 endef
+
+define Package/v2ray-core/conffiles
+/etc/config/v2ray
+/etc/v2ray/
+endef
+
+ifneq ($(CONFIG_V2RAY_CORE_COMPRESS_GOPROXY)$(CONFIG_V2RAY_CTL_COMPRESS_GOPROXY),)
+	export GO111MODULE=on
+	export GOPROXY=https://goproxy.baidu.com
+endif
 
 define Build/Compile
 	$(call GoPackage/Build/Compile)
@@ -130,6 +155,14 @@ define Package/v2ray-core/install
 	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
 	$(INSTALL_DIR) $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/v2ray $(1)/usr/bin/
+
+	$(INSTALL_DIR) $(1)/etc/v2ray/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/release/config/config.json $(1)/etc/v2ray/
+
+	$(INSTALL_DIR) $(1)/etc/config/
+	$(INSTALL_CONF) $(CURDIR)/files/v2ray.conf $(1)/etc/config/v2ray
+	$(INSTALL_DIR) $(1)/etc/init.d/
+	$(INSTALL_BIN) $(CURDIR)/files/v2ray.init $(1)/etc/init.d/v2ray
 endef
 
 define Package/v2ray-ctl/install
@@ -139,6 +172,12 @@ define Package/v2ray-ctl/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/v2ctl $(1)/usr/bin/
 endef
 
+define Package/v2ray-example/install
+	$(INSTALL_DIR) $(1)/etc/v2ray/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/release/config/vpoint_socks_vmess.json $(1)/etc/v2ray/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/release/config/vpoint_vmess_freedom.json $(1)/etc/v2ray/
+endef
+
 define Package/v2ray-extra/install
 	$(INSTALL_DIR) $(1)/usr/share/v2ray/
 	$(CP) $(PKG_BUILD_DIR)/release/extra/* $(1)/usr/share/v2ray/
@@ -146,4 +185,5 @@ endef
 
 $(eval $(call BuildPackage,v2ray-core))
 $(eval $(call BuildPackage,v2ray-ctl))
+$(eval $(call BuildPackage,v2ray-example))
 $(eval $(call BuildPackage,v2ray-extra))
