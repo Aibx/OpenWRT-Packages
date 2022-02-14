@@ -41,8 +41,16 @@ sed -i '$a src-git Aibx https://github.com/Aibx/OpenWRT-Packages' feeds.conf.def
 - 含仓库内大部分软件和主题，每日跟随仓库更新自动编译，如果最新版本不含bin后缀文件即编译失败，请去[Releases](https://github.com/Aibx/OpenWRT-R619AC/releases)或[Actions](https://github.com/Aibx/OpenWRT-R619AC/actions)寻找旧版下载
 - Releases仅保留最新14份编译内容,Actions则保留一月内全部的编译内容,Cowtransfer及WeTransfer下载链接有效时长为7天,建议按需选取
 
-> 编译开始时间为0:30 UTC(北京时间8:30) And 12:30 UTC(北京时间20:30)
+> 编译开始时间为0:10 UTC(北京时间8:10) And 12:10 UTC(北京时间20:10)
 
+# 斐讯N1成品固件
+
+[![GitHub Action (latest by date)](https://img.shields.io/github/workflow/status/Aibx/OpenWRT-S905D/Build%20OpenWRT%20for%20N1?style=for-the-badge&logo=appveyor&label=Build%20Status)](https://github.com/Aibx/OpenWRT-S905D/actions)
+[![GitHub Release (latest by date)](https://img.shields.io/github/v/release/Aibx/OpenWRT-S905D?style=for-the-badge&label=Download)](https://github.com/Aibx/OpenWRT-S905D/releases/latest)
+- 含仓库内大部分软件和主题，每日跟随仓库更新自动编译，基于最新内核编译，版本齐全，含tar.gz文件，可自行编译
+- Releases仅保留最新14份编译内容,Actions则保留一月内全部的编译内容,建议按需选取
+
+> 编译开始时间为0:10 UTC(北京时间8:10) And 12:10 UTC(北京时间20:10)
 
 ## 联动仓库
 - [OpenWRT-R619AC](https://github.com/Aibx/OpenWRT-R619AC)：竞斗云2.0自动编译仓库,内含IPK及最新固件
