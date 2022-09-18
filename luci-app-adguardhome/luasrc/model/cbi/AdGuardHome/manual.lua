@@ -8,10 +8,7 @@ require("table")
 function gen_template_config()
 	local b
 	local d=""
-	local rcauto="/tmp/resolv.conf.auto"
-	if not fs.access(rcauto) then
-		rcauto="/tmp/resolv.conf.d/resolv.conf.auto"
-	end
+	local rcauto=uci:get("dhcp","@dnsmasq[0]","resolvfile")
 	if fs.access(rcauto) then
 		for cnt in io.lines(rcauto) do
 			b=string.match (cnt,"^[^#]*nameserver%s+([^%s]+)$")

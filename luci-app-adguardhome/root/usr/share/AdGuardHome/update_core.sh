@@ -27,9 +27,9 @@ check_latest_version(){
 	if [ -z "${latest_ver}" ]; then
 		echo -e "\nFailed to check latest version, please try again later."  && EXIT 1
 	fi
-	now_ver="$($binpath --version 2>/dev/null | grep -m 1 -E '[0-9]+[.][0-9.]+' -o)"
+	now_ver="$($binpath --version 2>/dev/null | grep -m 1 -E 'v[0-9]+[.][0-9.]+' -o)"
 	if [ "${latest_ver}"x != "${now_ver}"x ] || [ "$1" == "force" ]; then
-		echo -e "Local version: ${now_ver}., cloud version: ${latest_ver}." 
+		echo -e "Local version: ${now_ver}. Cloud version: ${latest_ver}."
 		doupdate_core
 	else
 			echo -e "\nLocal version: ${now_ver}, cloud version: ${latest_ver}." 
@@ -142,7 +142,11 @@ doupdate_core(){
 	Arch="mips64_softfloat"
 	;;
 	"arm")
-	Arch="arm"
+	if [ `uname -m` = "armv7l" ]; then
+		Arch="armv5"
+	else
+		Arch="armv7"
+	fi
 	;;
 	"aarch64")
 	Arch="arm64"
@@ -153,9 +157,7 @@ doupdate_core(){
 	EXIT 1
 	;;
 	"powerpc64")
-	Arch="ppc64"
-	echo -e "error not support $Archt" 
-	EXIT 1
+	Arch="ppc64le"
 	;;
 	*)
 	echo -e "error not support $Archt if you can use offical release please issue a bug" 
