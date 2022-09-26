@@ -120,10 +120,7 @@ doupdate_core(){
 	rm -rf /tmp/AdGuardHomeupdate/* >/dev/null 2>&1
 	Archt="$(opkg info kernel | grep Architecture | awk -F "[ _]" '{print($2)}')"
 	case $Archt in
-	"i386")
-	Arch="386"
-	;;
-	"i686")
+	"i386"|"i486"|"i686"|"i786")
 	Arch="386"
 	;;
 	"x86")
@@ -142,10 +139,13 @@ doupdate_core(){
 	Arch="mips64_softfloat"
 	;;
 	"arm")
-	if [ `uname -m` = "armv7l" ]; then
-		Arch="armv5"
-	else
+	um=`uname -m`
+	if [ $um = "armv8l" ]; then
 		Arch="armv7"
+	elif [ $um = "armv6l" ]; then
+		Arch="armv6"
+	else
+		Arch="armv5"
 	fi
 	;;
 	"aarch64")
