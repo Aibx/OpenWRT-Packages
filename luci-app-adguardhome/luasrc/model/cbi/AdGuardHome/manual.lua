@@ -8,7 +8,6 @@ require("table")
 function gen_template_config()
 	local b
 	local d=""
-	d=d.."  - 114.114.114.114\n"
 	local rcauto=uci:get("dhcp","@dnsmasq[0]","resolvfile")
 	if (rcauto == nil) then
 		for fle in fs.dir("/var/etc") do
@@ -31,7 +30,7 @@ function gen_template_config()
 		for cnt in io.lines(rcauto) do
 			b=string.match (cnt,"^[^#]*nameserver%s+([^%s]+)$")
 			if (b~=nil) then
-				d=d.."  - "..b.."\n"
+				d=d.."    - "..b.."\n"
 			end
 		end
 	end
